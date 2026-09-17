@@ -31,25 +31,11 @@
 
 \title{Laboratorio 2\\
 Evaluación del desempeño de algoritmos y comportamiento de la memoria caché}
-% COMPLETAR: nombre del estudiante
 \author{[Nombre del estudiante]\\Universidad Nacional de San Agustín de Arequipa}
 \date{\today}
 
 \begin{document}
 \maketitle
-
-\begin{abstract}
-En este laboratorio se comparan algoritmos que tienen la misma complejidad
-pero distinto patrón de acceso a memoria: los dos pares de bucles anidados
-del libro de Pacheco, la multiplicación clásica de matrices y la
-multiplicación por bloques. Los programas se ejecutaron en dos equipos con
-distinto tamaño de caché y se analizaron con Valgrind (Cachegrind). Los
-resultados muestran que recorrer una matriz por columnas puede ser hasta
-20 veces más lento que por filas, y que la multiplicación por bloques puede
-ser hasta 10,9 veces más rápida que la clásica, aunque en todos los casos
-el número de operaciones es el mismo. La diferencia se explica por los
-fallos de caché.
-\end{abstract}
 
 %------------------------------------------------------------
 \section{Introducción}
@@ -60,8 +46,19 @@ un dato que está en la caché L1 es mucho más rápido que traerlo de la
 memoria principal. Por eso dos programas con la misma complejidad pueden
 tardar tiempos muy diferentes.
 
-El objetivo de este trabajo es comprobar esto de forma experimental,
-midiendo tiempos y usando Cachegrind para contar los fallos de caché.
+El objetivo de este trabajo es comprobar esto de forma experimental. Se
+comparan algoritmos que tienen la misma complejidad pero distinto patrón de
+acceso a memoria: los dos pares de bucles anidados del libro de Pacheco, la
+multiplicación clásica de matrices y la multiplicación por bloques. Los
+programas se ejecutaron en dos equipos con distinto tamaño de caché, se
+midieron sus tiempos y se analizaron con Valgrind (Cachegrind) para contar
+los fallos de caché.
+
+Los resultados muestran que recorrer una matriz por columnas puede ser hasta
+20 veces más lento que por filas, y que la multiplicación por bloques puede
+ser hasta 10,9 veces más rápida que la clásica, aunque en todos los casos el
+número de operaciones es el mismo. La diferencia se explica por los fallos
+de caché.
 
 %------------------------------------------------------------
 \section{Entorno de pruebas}
@@ -97,6 +94,12 @@ veces y se reporta el promedio. Las matrices se guardan en un
 \texttt{vector} de tamaño $n \times n$, fila por fila, de modo que el
 elemento $(i,j)$ está en la posición \texttt{i*n + j}.
 
+\textbf{Limitaciones:} las mediciones se hicieron dentro de máquinas
+virtuales y sin fijar el proceso a un núcleo, por lo que pueden tener algo
+de ruido. En la PC, las otras tres máquinas virtuales del clúster estaban
+encendidas pero sin ejecutar nada. Los tiempos menores a unos pocos
+milisegundos son los más sensibles a este ruido.
+
 %------------------------------------------------------------
 \section{Análisis de bucles anidados}
 
@@ -120,13 +123,13 @@ for (int j = 0; j < MAX; j++)
 
 \subsection{Número de iteraciones y complejidad}
 
-En los dos casos el bucle externo da $MAX$ vueltas y el interno otras $MAX$,
-así que el cuerpo se ejecuta
+En los dos casos el bucle externo da $\mathit{MAX}$ vueltas y el interno otras
+$\mathit{MAX}$, así que el cuerpo se ejecuta
 \[
-\sum_{i=0}^{MAX-1} \sum_{j=0}^{MAX-1} 1 = MAX^2
+\sum_{i=0}^{\mathit{MAX}-1} \sum_{j=0}^{\mathit{MAX}-1} 1 = \mathit{MAX}^2
 \]
 veces. Como el cuerpo hace un número fijo de operaciones, los dos pares son
-$O(MAX^2)$. Solo cambia el orden en que se recorre la matriz.
+$O(\mathit{MAX}^2)$. Solo cambia el orden en que se recorre la matriz.
 
 \subsection{Resultados}
 
@@ -161,21 +164,22 @@ MAX & Iteraciones & Tam. $A$ & Filas & Columnas & Veces & Filas & Columnas & Vec
 \subsection{Análisis}
 
 Aunque los dos pares hacen exactamente las mismas iteraciones, el recorrido
-por columnas es más lento, y la diferencia crece con $MAX$: en la laptop
+por columnas es más lento, y la diferencia crece con $\mathit{MAX}$: en la laptop
 llega a ser \textbf{20 veces} más lento y en la PC \textbf{8,7 veces}.
 
 La razón es que la matriz está guardada por filas. Cuando se recorre por
 filas, \texttt{A[i*MAX+j]} y \texttt{A[i*MAX+j+1]} están juntos en memoria,
 y cada vez que la caché carga una línea de 64 bytes trae 8 elementos que se
 van a usar enseguida. Cuando se recorre por columnas, cada acceso salta
-$MAX$ posiciones, así que casi cada acceso cae en una línea distinta y se
-produce un fallo de caché.
+$\mathit{MAX}$ posiciones, así que casi cada acceso cae en una línea distinta
+y se produce un fallo de caché.
 
 También se ve la influencia del tamaño de la caché L3. En la laptop (L3 de
-3 MB) la diferencia salta de 2 a 11,6 veces entre $MAX=500$ y $MAX=1000$,
-que es justo cuando $A$ pasa de 1,9 MB a 7,6 MB y deja de caber en L3. En
-la PC (L3 de 12 MB) con $MAX=1000$ la matriz todavía cabe y la diferencia es
-solo de 2,4 veces; el salto grande aparece en $MAX=2000$.
+3 MB) la diferencia salta de 2 a 11,6 veces entre $\mathit{MAX}=500$ y
+$\mathit{MAX}=1000$, que es justo cuando $A$ pasa de 1,9 MB a 7,6 MB y deja
+de caber en L3. En la PC (L3 de 12 MB) con $\mathit{MAX}=1000$ la matriz
+todavía cabe y la diferencia es solo de 2,4 veces; el salto grande aparece
+en $\mathit{MAX}=2000$.
 
 %------------------------------------------------------------
 \section{Multiplicación clásica de matrices}
@@ -291,11 +295,12 @@ for (int ii = 0; ii < n; ii += b)
 Los tres primeros bucles eligen el bloque y los tres últimos hacen la
 multiplicación dentro del bloque. La función \texttt{min} sirve para que el
 último bloque no se salga de la matriz cuando $n$ no es múltiplo de $b$.
-Para verificar la implementación, se comparó su resultado elemento por
-elemento con el de la multiplicación clásica, usando matrices con valores
-distintos en cada posición, en 56 combinaciones de tamaño ($n$ de 1 a 600,
-incluyendo valores que no son múltiplos del bloque) y de bloque ($b$ de 1 a
-1000). En todos los casos los resultados fueron idénticos.
+Para verificar la implementación se usó el programa \texttt{verificar.cpp},
+que compara elemento por elemento el resultado de la versión por bloques con
+el de la clásica, usando matrices con valores distintos en cada posición. Se
+eligió $n=500$ y $b=32$ porque 500 no es múltiplo de 32 y el último bloque
+queda incompleto (20 filas), que es donde un error en el uso de \texttt{min}
+se haría visible. Los dos resultados fueron idénticos.
 
 \subsection{Complejidad}
 
@@ -306,8 +311,8 @@ complejidad también es $O(n^3)$.
 \subsection{Resultados}
 
 Se probaron bloques de 16, 32, 64 y 128. El cuadro~\ref{tab:bloques}
-muestra los tamaños más interesantes; ``Mejora'' indica cuántas veces es
-más rápida que la clásica.
+muestra los tamaños más interesantes; entre paréntesis se indica cuántas
+veces es más rápida que la clásica.
 
 \begin{table}[H]
 \centering
@@ -341,7 +346,9 @@ PC & 1000 & 2,805 & 0,934 (3,00×) & \textbf{0,908 (3,09×)} & 0,960 (2,92×) & 
 \centering
 \includegraphics[width=0.48\textwidth]{../graficas/laptop_tam_bloque.png}
 \includegraphics[width=0.48\textwidth]{../graficas/pc_tam_bloque.png}
-\caption{Efecto del tamaño de bloque para $n=1000$. La línea roja es la multiplicación clásica.}
+\caption{Speedup de la multiplicación por bloques respecto a la clásica para
+$n=1000$ (tiempo de la clásica dividido entre el tiempo con bloques), según el
+tamaño de bloque. La línea roja (1×) representa la multiplicación clásica.}
 \label{fig:tambloque}
 \end{figure}
 
@@ -368,7 +375,7 @@ por lo que se esperaba que $b=32$ fuera un buen valor. Los resultados lo
 confirman: $b=32$ es el mejor para $n=1000$ en los dos equipos, aunque las
 diferencias entre 16, 32 y 64 son pequeñas. Con $b=128$ los bloques ya no
 caben en L1 y el tiempo empeora un poco. Con bloques muy pequeños también
-se pierde algo por el costo de controlar los seis bucles.
+se pierde algo, probablemente por el costo de controlar los seis bucles.
 
 \textbf{¿Por qué es más rápida si la complejidad es la misma?} Porque la
 complejidad solo cuenta operaciones. La versión por bloques hace las mismas
@@ -422,7 +429,7 @@ bloqueo aprovecha mejor la localidad temporal.
 
 El tiempo real se puede ver como la suma de dos partes:
 \[
-t \approx (\text{operaciones}) \times t_{op} + (\text{fallos de caché}) \times t_{fallo}.
+t \approx (\text{operaciones}) \times t_{\text{op}} + (\text{fallos de caché}) \times t_{\text{fallo}}.
 \]
 La primera parte es la que mide la complejidad y es igual en ambas
 versiones. La segunda depende de cómo se accede a la memoria. Como traer un
@@ -453,7 +460,11 @@ Cachegrind simula dos niveles: el primer nivel (I1 para instrucciones y D1
 para datos) y el último nivel (LL, que corresponde a L3). No simula L2.
 Para la L3 de la PC se usó asociatividad 12 en lugar de 16, porque
 Cachegrind exige que el número de conjuntos sea potencia de 2; el tamaño
-de 12 MB se mantuvo.
+de 12 MB se mantuvo. Si no se indican los parámetros, Valgrind hace un ajuste
+equivalente por su cuenta y usa 24 vías; en ambos casos se conserva la
+capacidad, que es lo que determina si las matrices caben en el último nivel.
+Todos los resultados de este informe se obtuvieron con la configuración de
+12 vías.
 
 \subsection{Resultados con $n=512$}
 
@@ -520,20 +531,21 @@ Con $n=500$ la versión por bloques tiene \textbf{60 veces menos fallos} de
 D1 que la clásica (1,9 millones frente a 113 millones). Esto confirma que el
 bloqueo sí reduce los fallos de caché, pero con $n=512$ el conflicto de
 asociatividad lo impide. Incluso con bloques de 8 la tasa sigue en 24\,\%,
-porque las 8 vías del conjunto también las usan las líneas de $A$ y $C$.
+probablemente porque las 8 vías del conjunto también las ocupan las líneas
+de $A$ y $C$.
 
 \subsection{Análisis}
 
 \begin{enumerate}
 \item \textbf{Instrucciones ejecutadas:} la versión por bloques ejecuta
       \emph{más} instrucciones que la clásica (6,8\,\% más con $n=500$),
-      porque tiene tres bucles extra y las llamadas a \texttt{min}. Aun así
+      porque tiene tres bucles extra y las comparaciones con \texttt{min}. Aun así
       es más rápida. El número de instrucciones no explica el tiempo.
 \item \textbf{Accesos a memoria:} son del mismo orden en las dos versiones
       (unos 400 millones), porque leen los mismos datos.
 \item \textbf{Fallos en la caché de datos:} aquí está la diferencia. En la
       clásica, casi 1 de cada 3 accesos a datos falla en D1. En la de
-      bloques con $n=500$ falla solo 1 de cada 200.
+      bloques con $n=500$ falla menos de 1 de cada 200.
 \item \textbf{Fallos en la caché de instrucciones:} son despreciables (menos
       de 2\,000 en más de mil millones de instrucciones). El código de los
       bucles es pequeño y cabe entero en I1, así que el problema está en los
@@ -549,40 +561,77 @@ porque las 8 vías del conjunto también las usan las líneas de $A$ y $C$.
 Los archivos \texttt{.out} generados se abrieron con KCachegrind:
 
 \begin{lstlisting}[language=bash,numbers=none]
+kcachegrind cachegrind/extra_clasica_500.out
+kcachegrind cachegrind/extra_bloques_500_32.out
 kcachegrind cachegrind/clasica_512.out
 \end{lstlisting}
 
-Seleccionando el evento \texttt{D1mr} (fallos de lectura en D1) y la vista
-de código fuente se puede ver qué línea produce los fallos. Lo mismo se
-obtiene en texto con \texttt{cg\_annotate}. En la versión clásica con
-$n=512$, la línea
-
-\begin{lstlisting}[numbers=none]
-C[i * n + j] += A[i * n + k] * B[k * n + j];
-\end{lstlisting}
-
-\noindent tiene 134\,547\,457 fallos D1, es decir el \textbf{99,8\,\%} de
-todos los fallos del programa. En la versión por bloques con $n=500$, la
-misma línea solo tiene 1\,176\,499.
+En cada uno se seleccionó el evento \texttt{L1 Data Read Miss} (D1mr, fallos
+de lectura en D1), la función \texttt{main} y la pestaña \texttt{Source Code},
+que muestra los fallos atribuidos a cada línea del código. Lo mismo se
+obtiene en texto con \texttt{cg\_annotate}.
 
 \begin{figure}[H]
 \centering
-\IfFileExists{../graficas/kcachegrind.png}{%
-  \includegraphics[width=0.9\textwidth]{../graficas/kcachegrind.png}%
-}{%
-  \fbox{\parbox{0.8\textwidth}{\centering\vspace{1.5cm}
-  COMPLETAR: insertar captura de KCachegrind\\
-  (guardarla como \texttt{graficas/kcachegrind.png})\vspace{1.5cm}}}%
-}
-\caption{Vista de KCachegrind para la multiplicación clásica ($n=512$), evento D1mr.}
-\label{fig:kcachegrind}
+\includegraphics[width=\textwidth]{../graficas/kcachegrind_clasica_500.png}
+\caption{KCachegrind, multiplicación clásica ($n=500$), evento D1mr: la línea
+33 tiene 112\,632\,899 fallos de lectura en D1.}
+\label{fig:kcachegrind500c}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../graficas/kcachegrind_bloques_500.png}
+\caption{KCachegrind, multiplicación por bloques ($n=500$, $b=32$), evento
+D1mr: la misma operación (línea 39) tiene 1\,176\,499 fallos.}
+\label{fig:kcachegrind500b}
+\end{figure}
+
+Con $n=500$, la línea de la multiplicación de la versión clásica tiene
+\textbf{112\,632\,899} fallos de lectura en D1, el \textbf{99,7\,\%} del total
+del programa (112\,926\,041). En la versión por bloques, la misma operación
+tiene solo \textbf{1\,176\,499}, unas \textbf{96 veces menos}.
+También se revisó el evento \texttt{LL Data Read Miss} (DLmr, fallos de
+lectura en el último nivel) para la clásica con $n=500$ en los dos equipos
+(figuras~\ref{fig:kcachegrindlll} y~\ref{fig:kcachegrindllp}). Las tres
+matrices ocupan unos 5,7 MB: no caben en la L3 de 3 MB de la laptop, donde la
+línea de la multiplicación produce 39\,972 fallos (77\,770 en todo el
+programa), pero sí caben en la L3 de 12 MB de la PC, donde \texttt{main} tiene
+un único fallo, en la inicialización, y la multiplicación no tiene ninguno
+(6\,038 en todo el programa, casi todos de la carga de bibliotecas). En los
+dos equipos la misma línea tiene 112,6 millones de fallos en D1, de modo que
+casi todos esos fallos se resuelven antes de llegar a la memoria principal.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../graficas/kcachegrind_ll_laptop.png}
+\caption{KCachegrind, laptop (L3 de 3 MB), clásica $n=500$, evento DLmr: la
+línea 33 tiene 39\,972 fallos de lectura en el último nivel.}
+\label{fig:kcachegrindlll}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../graficas/kcachegrind_ll_pc.png}
+\caption{KCachegrind, PC (L3 de 12 MB), clásica $n=500$, evento DLmr:
+\texttt{main} tiene un solo fallo (línea 25, inicialización) y la línea de la
+multiplicación ninguno.}
+\label{fig:kcachegrindllp}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../graficas/kcachegrind.png}
+\caption{KCachegrind, multiplicación clásica ($n=512$): la línea 33 tiene
+134\,547\,457 fallos de lectura en D1, el 99,96\,\% del total (134\,596\,597).}
+\label{fig:kcachegrind512}
 \end{figure}
 
 %------------------------------------------------------------
 \section{Conclusiones}
 
 \begin{enumerate}
-\item Los dos pares de bucles de Pacheco hacen las mismas $MAX^2$ iteraciones,
+\item Los dos pares de bucles de Pacheco hacen las mismas $\mathit{MAX}^2$ iteraciones,
       pero recorrer la matriz por columnas fue hasta 20 veces más lento en la
       laptop y 8,7 veces en la PC. La única diferencia es el orden de acceso
       a la memoria.
