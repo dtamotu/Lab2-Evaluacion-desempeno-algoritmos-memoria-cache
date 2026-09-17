@@ -37,35 +37,41 @@ plt.figure(figsize=(5, 3.5))
 plt.plot(c["n"], c["tiempo"], "o-")
 plt.xlabel("n")
 plt.ylabel("Tiempo (s)")
-plt.title("Multiplicacion clasica (" + nombre + ")")
+plt.title("Multiplicación clásica (" + nombre + ")")
 plt.grid(True)
 guardar("clasica.png")
 
 # Ejercicio 3: clasica vs bloques
 b = pd.read_csv(carpeta + "/bloques.csv").groupby(["n", "bloque"]).mean().reset_index()
 plt.figure(figsize=(5, 3.5))
-plt.plot(c["n"], c["tiempo"], "ko-", label="Clasica")
+plt.plot(c["n"], c["tiempo"], "ko-", label="Clásica")
 for tam in sorted(b["bloque"].unique()):
     datos = b[b["bloque"] == tam]
     plt.plot(datos["n"], datos["tiempo"], "o--", label="Bloques " + str(tam))
 plt.xlabel("n")
 plt.ylabel("Tiempo (s)")
-plt.title("Clasica vs por bloques (" + nombre + ")")
+plt.title("Clásica vs por bloques (" + nombre + ")")
 plt.legend()
 plt.grid(True)
 guardar("clasica_vs_bloques.png")
 
 # Ejercicio 3: efecto del tamanio de bloque para el n mas grande
+# Speedup = tiempo de la clasica / tiempo con bloques
 nmax = b["n"].max()
 datos = b[b["n"] == nmax]
 tclasica = c[c["n"] == nmax]["tiempo"].values[0]
+speedup = tclasica / datos["tiempo"]
 plt.figure(figsize=(5, 3.5))
-plt.bar([str(x) for x in datos["bloque"]], datos["tiempo"], label="Bloques")
-plt.axhline(tclasica, color="red", linestyle="--", label="Clasica")
-plt.xlabel("Tamanio de bloque")
-plt.ylabel("Tiempo (s)")
+barras = plt.bar([str(x) for x in datos["bloque"]], speedup)
+for barra, valor in zip(barras, speedup):
+    plt.text(barra.get_x() + barra.get_width() / 2, valor, ("%.1f×" % valor).replace(".", ","),
+             ha="center", va="bottom")
+plt.axhline(1, color="red", linestyle="--", label="Clásica (1×)")
+plt.ylim(0, speedup.max() * 1.35)
+plt.xlabel("Tamaño de bloque")
+plt.ylabel("Veces más rápida que la clásica")
 plt.title("Efecto del bloque, n=" + str(nmax) + " (" + nombre + ")")
-plt.legend()
+plt.legend(loc="upper right")
 guardar("tam_bloque.png")
 
 # Tablas resumen en texto (promedios) para copiar al informe
