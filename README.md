@@ -105,6 +105,7 @@ puede hacer que un programa con la misma complejidad sea más de 10 veces más r
 ├── bucles.cpp            Ejercicio 1
 ├── clasica.cpp           Ejercicio 2
 ├── bloques.cpp           Ejercicio 3
+├── verificar.cpp         Comprueba que bloques da el mismo resultado que la clásica
 ├── Makefile
 ├── experimentos.sh       Ejecuta los ejercicios 1-3 y guarda CSV
 ├── cachegrind.sh         Ejercicio 5
@@ -128,6 +129,13 @@ make
 ./bloques 500 32
 ```
 
+Verificar la multiplicación por bloques (n=500, b=32):
+
+```bash
+g++ -std=c++14 -O2 verificar.cpp -o verificar
+./verificar
+```
+
 Experimentos completos:
 
 ```bash
@@ -149,7 +157,7 @@ Ver Cachegrind en modo gráfico:
 kcachegrind cachegrind_pc/clasica_512.out
 ```
 
-Informe:
+Informe (hay una versión completa y una más sencilla, `informe_simple.tex`):
 
 ```bash
 cd informe
