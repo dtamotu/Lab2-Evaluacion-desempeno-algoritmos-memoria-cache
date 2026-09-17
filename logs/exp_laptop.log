@@ -1,0 +1,26 @@
+make: Nothing to be done for 'all'.
+Ejercicio 1: bucles
+  MAX=500 listo
+  MAX=1000 listo
+  MAX=2000 listo
+  MAX=3000 listo
+  MAX=4000 listo
+Ejercicio 2: multiplicacion clasica
+  n=100 listo
+  n=200 listo
+  n=300 listo
+  n=400 listo
+  n=500 listo
+  n=600 listo
+  n=800 listo
+  n=1000 listo
+Ejercicio 3: multiplicacion por bloques
+  n=100 listo
+  n=200 listo
+  n=300 listo
+  n=400 listo
+  n=500 listo
+  n=600 listo
+  n=800 listo
+  n=1000 listo
+Terminado. Resultados en la carpeta resultados/
