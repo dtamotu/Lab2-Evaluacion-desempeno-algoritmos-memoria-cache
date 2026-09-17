@@ -1,0 +1,106 @@
+--------------------------------------------------------------------------------
+I1 cache:         32768 B, 64 B, 8-way associative
+D1 cache:         32768 B, 64 B, 8-way associative
+LL cache:         3145728 B, 64 B, 12-way associative
+Command:          ./clasica 500
+Data file:        extra_clasica_500.out
+Events recorded:  Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
+Events shown:     Ir Dr D1mr DLmr
+Event sort order: Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
+Thresholds:       0.1 100 100 100 100 100 100 100 100
+Include dirs:     
+User annotated:   
+Auto-annotation:  on
+
+--------------------------------------------------------------------------------
+           Ir          Dr        D1mr   DLmr 
+--------------------------------------------------------------------------------
+1,009,405,597 251,947,623 112,926,041 77,770  PROGRAM TOTALS
+
+--------------------------------------------------------------------------------
+           Ir          Dr        D1mr   DLmr  file:function
+--------------------------------------------------------------------------------
+1,004,009,087 251,251,523 112,913,771 71,227  /home/mpi/lab2/clasica.cpp:main
+    2,000,004           0           0      0  /usr/include/c++/5/bits/stl_algobase.h:std::vector<double, std::allocator<double> >::vector(unsigned int, std::allocator<double> const&)
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /home/mpi/lab2/clasica.cpp
+--------------------------------------------------------------------------------
+         Ir          Dr        D1mr   DLmr 
+
+-- line 4 ----------------------------------------
+          .           .           .      .  // Ejecutar: ./clasica n
+          .           .           .      .  #include <iostream>
+          .           .           .      .  #include <vector>
+          .           .           .      .  #include <chrono>
+          .           .           .      .  #include <cstdlib>
+          .           .           .      .  
+          .           .           .      .  using namespace std;
+          .           .           .      .  
+         15           4           0      0  int main(int argc, char* argv[]) {
+          2           0           0      0      if (argc < 2) {
+          .           .           .      .          cout << "Uso: ./clasica n" << endl;
+          .           .           .      .          return 1;
+          .           .           .      .      }
+          .           .           .      .      int n = atoi(argv[1]);
+          .           .           .      .  
+          .           .           .      .      // Matrices de n x n guardadas fila por fila: M[i][j] = M[i*n + j]
+         16           0           0      0      vector<double> A(n * n), B(n * n), C(n * n, 0.0);
+          .           .           .      .  
+      4,007           2           1      0      for (int i = 0; i < n; i++)
+    750,000           0           0      0          for (int j = 0; j < n; j++) {
+    250,001           0           0      0              A[i * n + j] = 1.0;
+    500,000     250,000           1      1              B[i * n + j] = 2.0;
+          .           .           .      .          }
+          .           .           .      .  
+  1,252,515     500,505      31,252 31,252      auto inicio = chrono::high_resolution_clock::now();
+          .           .           .      .  
+      2,500       1,000           0      0      for (int i = 0; i < n; i++)
+    500,000     250,000           0      0          for (int j = 0; j < n; j++)
+375,750,000     250,000     249,616      0              for (int k = 0; k < n; k++)
+625,000,000 250,000,000 112,632,899 39,972                  C[i * n + j] += A[i * n + k] * B[k * n + j];
+          .           .           .      .  
+          3           1           0      0      auto fin = chrono::high_resolution_clock::now();
+          .           .           .      .      double tiempo = chrono::duration<double>(fin - inicio).count();
+          .           .           .      .  
+          .           .           .      .      // Comprobacion: cada elemento de C debe valer 2*n
+         10           3           1      1      if (C[0] != 2.0 * n)
+          .           .           .      .          cout << "Error en el resultado" << endl;
+          .           .           .      .  
+          .           .           .      .      // Salida: n, tiempo en segundos
+          6           0           0      0      cout << n << "," << tiempo << endl;
+          1           0           0      0      return 0;
+         14           9           1      1  }
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /usr/include/c++/5/bits/stl_algobase.h
+--------------------------------------------------------------------------------
+       Ir Dr D1mr DLmr 
+
+-- line 760 ----------------------------------------
+        .  .    .    .      }
+        .  .    .    .  
+        .  .    .    .    template<typename _OutputIterator, typename _Size, typename _Tp>
+        .  .    .    .      inline typename
+        .  .    .    .      __gnu_cxx::__enable_if<__is_scalar<_Tp>::__value, _OutputIterator>::__type
+        .  .    .    .      __fill_n_a(_OutputIterator __first, _Size __n, const _Tp& __value)
+        .  .    .    .      {
+        .  .    .    .        const _Tp __tmp = __value;
+2,000,007  0    0    0        for (__decltype(__n + 0) __niter = __n;
+        .  .    .    .  	   __niter > 0; --__niter, ++__first)
+1,000,004  1    0    0  	*__first = __tmp;
+        .  .    .    .        return __first;
+        .  .    .    .      }
+        .  .    .    .  
+        .  .    .    .    template<typename _Size, typename _Tp>
+        .  .    .    .      inline typename
+        .  .    .    .      __gnu_cxx::__enable_if<__is_byte<_Tp>::__value, _Tp*>::__type
+        .  .    .    .      __fill_n_a(_Tp* __first, _Size __n, const _Tp& __c)
+        .  .    .    .      {
+-- line 778 ----------------------------------------
+
+--------------------------------------------------------------------------------
+ Ir  Dr D1mr DLmr 
+--------------------------------------------------------------------------------
+100 100  100   92  percentage of events annotated
+

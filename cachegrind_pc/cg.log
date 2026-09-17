@@ -1,0 +1,38 @@
+make: No se hace nada para 'all'.
+Cachegrind clasica n=512
+512,6.98018
+Cachegrind bloques n=512 bloque=32
+512,32,5.94895
+
+===== Resumen clasica =====
+==8160== I   refs:      1,083,486,386
+==8160== I1  misses:            1,751
+==8160== LLi misses:            1,666
+==8160== I1  miss rate:          0.00%
+==8160== LLi miss rate:          0.00%
+==8160== D   refs:        406,222,296  (270,443,383 rd   + 135,778,913 wr)
+==8160== D1  misses:      134,761,063  (134,596,591 rd   +     164,472 wr)
+==8160== LLd misses:          104,713  (      6,039 rd   +      98,674 wr)
+==8160== D1  miss rate:          33.2% (       49.8%     +         0.1%  )
+==8160== LLd miss rate:           0.0% (        0.0%     +         0.1%  )
+==8160== LL refs:         134,762,814  (134,598,342 rd   +     164,472 wr)
+==8160== LL misses:           106,379  (      7,705 rd   +      98,674 wr)
+==8160== LL miss rate:            0.0% (        0.0%     +         0.1%  )
+
+===== Resumen bloques =====
+==8166== I   refs:      1,155,844,746
+==8166== I1  misses:            1,769
+==8166== LLi misses:            1,679
+==8166== I1  miss rate:          0.00%
+==8166== LLi miss rate:          0.00%
+==8166== D   refs:        441,465,869  (305,522,567 rd   + 135,943,302 wr)
+==8166== D1  misses:      136,098,890  (135,934,416 rd   +     164,474 wr)
+==8166== LLd misses:          104,715  (      6,039 rd   +      98,676 wr)
+==8166== D1  miss rate:          30.8% (       44.5%     +         0.1%  )
+==8166== LLd miss rate:           0.0% (        0.0%     +         0.1%  )
+==8166== LL refs:         136,100,659  (135,936,185 rd   +     164,474 wr)
+==8166== LL misses:           106,394  (      7,718 rd   +      98,676 wr)
+==8166== LL miss rate:            0.0% (        0.0%     +         0.1%  )
+
+Para ver el detalle: kcachegrind cachegrind/clasica_512.out
+FIN

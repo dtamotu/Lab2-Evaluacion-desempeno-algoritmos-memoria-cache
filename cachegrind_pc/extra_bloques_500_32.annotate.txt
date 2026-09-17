@@ -1,0 +1,112 @@
+--------------------------------------------------------------------------------
+I1 cache:         32768 B, 64 B, 8-way associative
+D1 cache:         32768 B, 64 B, 8-way associative
+LL cache:         12582912 B, 64 B, 12-way associative
+Command:          ./bloques 500 32
+Data file:        extra_bloques_500_32.out
+Events recorded:  Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
+Events shown:     Ir Dr D1mr DLmr
+Event sort order: Ir I1mr ILmr Dr D1mr DLmr Dw D1mw DLmw
+Thresholds:       0.1 100 100 100 100 100 100 100 100
+Include dirs:     
+User annotated:   
+Auto-annotation:  on
+
+--------------------------------------------------------------------------------
+           Ir          Dr      D1mr  DLmr 
+--------------------------------------------------------------------------------
+1,078,492,210 285,450,176 1,709,283 6,038  PROGRAM TOTALS
+
+--------------------------------------------------------------------------------
+           Ir          Dr      D1mr  DLmr  file:function
+--------------------------------------------------------------------------------
+1,072,845,991 284,504,160 1,697,018     1  /home/mpi/lab2/bloques.cpp:main
+    2,000,004           0         0     0  /usr/include/c++/5/bits/stl_algobase.h:std::vector<double, std::allocator<double> >::vector(unsigned int, std::allocator<double> const&)
+    1,250,006     250,000         0     0  /usr/include/c++/5/bits/stl_algobase.h:main
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /home/mpi/lab2/bloques.cpp
+--------------------------------------------------------------------------------
+         Ir          Dr      D1mr DLmr 
+
+-- line 5 ----------------------------------------
+          .           .         .    .  #include <iostream>
+          .           .         .    .  #include <vector>
+          .           .         .    .  #include <chrono>
+          .           .         .    .  #include <cstdlib>
+          .           .         .    .  #include <algorithm>
+          .           .         .    .  
+          .           .         .    .  using namespace std;
+          .           .         .    .  
+         15           4         0    0  int main(int argc, char* argv[]) {
+          2           0         0    0      if (argc < 3) {
+          .           .         .    .          cout << "Uso: ./bloques n tamBloque" << endl;
+          .           .         .    .          return 1;
+          .           .         .    .      }
+          .           .         .    .      int n = atoi(argv[1]);
+          .           .         .    .      int b = atoi(argv[2]);
+          .           .         .    .  
+         16           0         0    0      vector<double> A(n * n), B(n * n), C(n * n, 0.0);
+          .           .         .    .  
+      3,008         503         1    0      for (int i = 0; i < n; i++)
+    750,000     250,000         0    0          for (int j = 0; j < n; j++) {
+    250,002           1         0    0              A[i * n + j] = 1.0;
+    500,000     250,000         1    1              B[i * n + j] = 2.0;
+          .           .         .    .          }
+          .           .         .    .  
+      6,559       5,174         2    0      auto inicio = chrono::high_resolution_clock::now();
+          .           .         .    .  
+          .           .         .    .      // Los tres primeros bucles recorren los bloques
+         49          16         0    0      for (int ii = 0; ii < n; ii += b)
+        880         368         0    0          for (int jj = 0; jj < n; jj += b)
+     12,544       8,448         0    0              for (int kk = 0; kk < n; kk += b)
+          .           .         .    .                  // Los tres siguientes multiplican dentro del bloque
+  1,146,880     965,632     1,809    0                  for (int i = ii; i < min(ii + b, n); i++)
+ 10,176,000   5,024,000         0    0                      for (int j = jj; j < min(jj + b, n); j++)
+310,000,000  28,000,000   518,704    0                          for (int k = kk; k < min(kk + b, n); k++)
+750,000,000 250,000,000 1,176,499    0                              C[i * n + j] += A[i * n + k] * B[k * n + j];
+          .           .         .    .  
+          3           1         0    0      auto fin = chrono::high_resolution_clock::now();
+          .           .         .    .      double tiempo = chrono::duration<double>(fin - inicio).count();
+          .           .         .    .  
+          .           .         .    .      // Comprobacion: cada elemento de C debe valer 2*n
+          9           3         1    0      if (C[0] != 2.0 * n)
+          .           .         .    .          cout << "Error en el resultado" << endl;
+          .           .         .    .  
+          .           .         .    .      // Salida: n, tamanio de bloque, tiempo en segundos
+         11           2         0    0      cout << n << "," << b << "," << tiempo << endl;
+          2           0         0    0      return 0;
+         14           9         1    0  }
+
+--------------------------------------------------------------------------------
+-- Auto-annotated source: /usr/include/c++/5/bits/stl_algobase.h
+--------------------------------------------------------------------------------
+       Ir      Dr D1mr DLmr 
+
+-- line 760 ----------------------------------------
+        .       .    .    .      }
+        .       .    .    .  
+        .       .    .    .    template<typename _OutputIterator, typename _Size, typename _Tp>
+        .       .    .    .      inline typename
+        .       .    .    .      __gnu_cxx::__enable_if<__is_scalar<_Tp>::__value, _OutputIterator>::__type
+        .       .    .    .      __fill_n_a(_OutputIterator __first, _Size __n, const _Tp& __value)
+        .       .    .    .      {
+        .       .    .    .        const _Tp __tmp = __value;
+2,000,007       0    0    0        for (__decltype(__n + 0) __niter = __n;
+        .       .    .    .  	   __niter > 0; --__niter, ++__first)
+1,250,003 250,000    0    0  	*__first = __tmp;
+        .       .    .    .        return __first;
+        .       .    .    .      }
+        .       .    .    .  
+        .       .    .    .    template<typename _Size, typename _Tp>
+        .       .    .    .      inline typename
+        .       .    .    .      __gnu_cxx::__enable_if<__is_byte<_Tp>::__value, _Tp*>::__type
+        .       .    .    .      __fill_n_a(_Tp* __first, _Size __n, const _Tp& __c)
+        .       .    .    .      {
+-- line 778 ----------------------------------------
+
+--------------------------------------------------------------------------------
+ Ir  Dr D1mr DLmr 
+--------------------------------------------------------------------------------
+100 100   99    0  percentage of events annotated
+
