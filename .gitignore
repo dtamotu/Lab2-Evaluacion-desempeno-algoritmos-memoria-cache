@@ -1,0 +1,16 @@
+# ejecutables
+bucles
+clasica
+bloques
+*.o
+
+# archivos auxiliares de LaTeX
+informe/*.aux
+informe/*.log
+informe/*.out
+informe/*.toc
+informe/*.synctex.gz
+informe/*.pdf
+
+# python
+__pycache__/
